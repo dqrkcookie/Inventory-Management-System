@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPU E-Marketplace</title>
+    <link rel="stylesheet" href="./css/output.css" />
+    <link rel="icon" href="./img/18961875.jpg" />
+  </head>
+  <body class="bg-gray-200 font-mono">
+    <header class="bg-gray-800 grid justify-center p-4 text-white">
+      <h1 class="text-2xl font-bold">Pre-owned GPUs Inventory</h1>
+    </header>
+    <section
+      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-800 p-6 rounded-md lg:w-2/3 w-3/4"
+    >
+      <div
+        id="addItem"
+        popover
+        class="p-6 bg-gray-500 rounded-md w-2/3 lg:w-1/4 shadow-lg"
+      >
+        <h1
+          class="text-center m-2 font-bold text-lg bg-gray-400 w-3/4 mx-auto rounded-lg"
+        >
+          New item details
+        </h1>
+        <form action="/post" method="POST" class="text-center w-full">
+          <input
+            class="newItems"
+            type="text"
+            placeholder="Product name"
+            name="name"
+          />
+          <input
+            class="newItems"
+            type="text"
+            placeholder="Model"
+            name="model"
+          />
+          <input
+            id="price"
+            class="newItems"
+            type="number"
+            placeholder="Price"
+            name="price"
+          />
+          <input
+            class="newItems"
+            type="number"
+            placeholder="Stocks"
+            name="stock"
+          />
+          <input
+            type="submit"
+            value="Add now"
+            class="bg-gray-300 px-3 rounded-sm cursor-pointer hover:bg-gray-200 transition duration-100 p-1"
+            id="submit"
+          />
+        </form>
+      </div>
+      <% if(messages.success) { %>
+      <span id="updateFlash" class="text-green-400 font-bold text-lg"
+        ><%= messages.success %></span
+      >
+      <% } %>
+      <button
+        class="px-4 bg-gray-400 rounded-md my-4 w-16 hover:bg-gray-300 border-2 hover:border-gray-400 transition duration-200 px-12 py-6 w-full"
+        popovertarget="addItem"
+      >
+        Add item +
+      </button>
+      <div class="overflow-x-auto">
+        <table
+          class="border-4 border-gray-700 text-black text-center table-auto w-full <%= items.length === 0 ? 'hidden' : '' %> relative"
+        >
+          <thead>
+            <tr class="border-2 border-black">
+              <th class="tableHead">Id</th>
+              <th class="tableHead">Name/Brand</th>
+              <th class="tableHead">Model</th>
+              <th class="tableHead">Price</th>
+              <th class="tableHead">Stock</th>
+              <th class="tableHead">Date added</th>
+              <th class="tableHead">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for(item of items) {%>
+            <tr>
+              <td class="tableBody"><%= item._id %></td>
+              <td class="tableBody"><%= item.name %></td>
+              <td class="tableBody"><%= item.model %></td>
+              <td class="tableBody"><%= item.price %></td>
+              <td class="tableBody"><%= item.stock %></td>
+              <% const time = new Date(item.date); %> <% const formattedTime =
+              `${time.getMonth()}/${time.getDate() + 1}/${time.getFullYear()}`
+              %>
+              <td class="tableBody"><%= formattedTime %></td>
+              <td class="tableBody">
+                <div class="flex justify-center">
+                  <div
+                    id="viewItem-<%= item._id %>"
+                    popover
+                    class="bg-gray-600 w-1/4 border-4 border-orange-400"
+                  >
+                    <h1 class="bg-gray-400 text-xl font-bold mb-4 p-3">
+                      Item details
+                    </h1>
+                    <ul>
+                      <li class="bg-gray-400 p-3 text-lg">
+                        name: <%= item.name %>
+                      </li>
+                      <li class="bg-gray-300 p-3 text-lg">
+                        model: <%= item.model %>
+                      </li>
+                      <li class="bg-gray-400 p-3 text-lg">
+                        price: <%= item.price %>
+                      </li>
+                      <li class="bg-gray-300 p-3 text-lg">
+                        stock: <%= item.stock %>
+                      </li>
+                    </ul>
+                  </div>
+                  <button
+                    class="px-4 hover:bg-orange-400 rounded-md m-1 w-16 flex justify-center bg-gray-400 transition duration-200"
+                    popovertarget="viewItem-<%= item._id %>"
+                  >
+                    View
+                  </button>
+                  <div
+                    id="updateItem-<%= item._id %>"
+                    popover
+                    class="w-1/4 bg-gray-300 rounded-md border-4 border-green-400"
+                  >
+                    <form
+                      action="/patch"
+                      method="POST"
+                      onsubmit="this.action += '/<%= item._id %>?_method=PATCH'"
+                      class="bg-gray-400 p-3"
+                    >
+                      <label class="font-bold text-lg">Name:</label>
+                      <input
+                        class="updateInput"
+                        type="text"
+                        placeholder="Name"
+                        value="<%= item.name %>"
+                        name="name"
+                      />
+                      <label class="font-bold text-lg">Model:</label>
+                      <input
+                        class="updateInput"
+                        type="text"
+                        placeholder="Model"
+                        value="<%= item.model %>"
+                        name="model"
+                      />
+                      <label class="font-bold text-lg">Price:</label>
+                      <input
+                        class="updateInput"
+                        type="text"
+                        placeholder="Price"
+                        value="<%= item.price %>"
+                        name="price"
+                      />
+                      <label class="font-bold text-lg">Stock:</label>
+                      <input
+                        class="updateInput"
+                        type="text"
+                        placeholder="Stock"
+                        value="<%= item.stock %>"
+                        name="stock"
+                      />
+                      <input
+                        type="submit"
+                        value="Update now"
+                        class="bg-gray-300 cursor-pointer m-4 p-1 rounded-sm hover:bg-gray-200 transition duration-100 text-md"
+                      />
+                    </form>
+                  </div>
+                  <button
+                    class="px-4 hover:bg-green-400 rounded-md m-1 w-16 flex justify-center bg-gray-400 transition duration-200"
+                    popovertarget="updateItem-<%= item._id %>"
+                    id="update"
+                  >
+                    Update
+                  </button>
+                  <form
+                    action="/delete"
+                    method="POST"
+                    onsubmit="this.action += '/<%= item._id %>?_method=DELETE'"
+                    id="deleteForm"
+                  >
+                    <button
+                      class="px-4 hover:bg-red-400 rounded-md m-1 w-16 flex justify-center bg-gray-400 transition duration-200"
+                      id="delete"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+              <% } %>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <script src="./js/index.mjs"></script>
+  </body>
+</html>
