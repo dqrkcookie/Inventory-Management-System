@@ -37,7 +37,8 @@ router.post('/post', checkSchema(inputValidators), async (req, res) => {
     req.flash('success', 'New item added successfully!');
     return res.status(201).redirect('/');
   } catch (err) {
-    return res.status(400).json({ message: `Adding item failed: ${err}` });
+    req.flash('missing', 'Adding item failed!');
+    return res.status(400).redirect('/');
   }
 });
 
