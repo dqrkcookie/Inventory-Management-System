@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ message: 'Error retrieving data from the database: ' + err });
+      .json({ message: `Error retrieving data from the database: ${err}` });
   }
 });
 
