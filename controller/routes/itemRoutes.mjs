@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Item } from '../../model/itemSchemas.mjs';
 import session from 'express-session';
 import flash from 'connect-flash';
+import { validationResult, matchedData, checkSchema } from 'express-validator';
+import { inputValidators } from '../src/utils/userInputValidators.mjs';
 
 const router = Router();
 
@@ -26,8 +28,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/post', async (req, res) => {
-  const { body } = req;
+router.post('/post', checkSchema(inputValidators), async (req, res) => {
+  const body = matchedData(req);
   const newItem = new Item(body);
   try {
     const savedItem = await newItem.save();
@@ -47,26 +49,30 @@ router.delete('/delete/:id', async (req, res) => {
     const deleteItem = await Item.findByIdAndDelete(id);
     if (!deleteItem)
       return res.status(404).json({ message: 'Item not found!' });
-    req.flash('success', `Item ${deleteItem.model} has been deleted!`);
+    req.flash('deleted', `Item ${deleteItem.model} has been deleted!`);
     return res.status(200).redirect('/');
   } catch (err) {
     console.log(err);
   }
 });
 
-router.patch('/patch/:id', async (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
-  const updatedItem = await Item.findByIdAndUpdate(id, body);
-  try {
-    if (!updatedItem) return res.status(400).json({ message: 'Bad request' });
-    req.flash('success', `Item ${updatedItem.model} has been updated!`);
-    return res.status(200).redirect('/');
-  } catch (err) {
-    console.log(err);
+router.patch('/patch/:id', checkSchema(inputValidators), async (req, res) => {
+  const { id } = req.params;
+  const data = matchedData(req);
+  const updatedItem = await Item.findByIdAndUpdate(id, data);
+  const result = validationResult(req);
+  // console.log(result.isEmpty());
+  if (result.isEmpty()) {
+    try {
+      if (!updatedItem) return res.status(400).json({ message: 'Bad request' });
+      req.flash('updated', `Item ${updatedItem.model} has been updated!`);
+      return res.status(200).redirect('/');
+    } catch (err) {
+      console.log(err);
+    }
   }
+  req.flash('failed', `Updating ${updatedItem.model} failed!`);
+  return res.status(400).redirect('/');
 });
 
 export default router;

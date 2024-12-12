@@ -10,6 +10,8 @@ const itemSchema = new mongoose.Schema({
   },
   model: {
     type: String,
+    minlength: 3,
+    maxlength: 36,
     required: true,
     trim: true,
   },
